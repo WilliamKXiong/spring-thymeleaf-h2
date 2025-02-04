@@ -9,7 +9,7 @@ RUN mvn clean package -Pprod -DskipTests
 # Package stage
 #
 FROM openjdk:17-jdk
-COPY --from=build /target/thymeleaf-0.0.1-SNAPSHOT.war demo.war
+COPY --from=build /target/thymeleaf-0.0.1-SNAPSHOT.jar demo.jar
 # ENV PORT=8080
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","demo.war"]
+ENTRYPOINT ["java","-jar","demo.jar"]
