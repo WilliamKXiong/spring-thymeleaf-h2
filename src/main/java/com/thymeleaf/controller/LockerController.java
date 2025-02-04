@@ -29,14 +29,14 @@ public class LockerController {
         List<LockerDto> lockers = lockerService.findAll();
         model.addAttribute("lockers", lockers);
         model.addAttribute("onListPage", true);
-        return "/locker/list";
+        return "locker/list";
     }
 
     @GetMapping("/{id}")
     public String locker(@PathVariable("id") String idString, Model model) {
         model.addAttribute("locker", null);
         if (!StringUtils.isNumeric(idString)) {
-            return "/locker/error";
+            return "locker/error";
         }
 
         int id = Integer.parseInt(idString);
@@ -44,24 +44,24 @@ public class LockerController {
             LockerDto locker = lockerService.findDtoById(id);
             model.addAttribute("locker", locker);
             model.addAttribute("onListPage", false);
-            return "/locker/details";
+            return "locker/details";
         } catch (NoResultException e) {
-            return "/locker/noResult";
+            return "locker/noResult";
         } catch (Exception e) {
-            return "/locker/error";
+            return "locker/error";
         }
     }
 
     @GetMapping("/add")
     public String showAddLockerForm(Model model) {
         model.addAttribute("locker", new LockerDto());
-        return "/locker/add";
+        return "locker/add";
     }
 
     @PostMapping("/add")
     public String addLocker(@ModelAttribute LockerDto locker, Model model) {
         LockerDto savedLocker = lockerService.save(locker);
         model.addAttribute("locker", savedLocker);
-        return "/locker/details";
+        return "locker/details";
     }
 }
