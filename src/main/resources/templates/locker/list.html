@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locker List Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* CSS to display 5 tables per row */
+        .table-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 columns */
+            gap: 20px; /* Space between tables */
+            justify-items: center; /* Center tables in the grid */
+        }
+        .locker-table {
+            width: 100%; /* Full width of the cell */
+        }
+        .add-locker-icon {
+            font-size: 30px;
+            color: #4CAF50;
+            cursor: pointer;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        .add-locker-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 20px;">
+
+<header style="text-align: center; padding: 20px; background-color: #4CAF50; color: white;">
+    <h1>Welcome to the Locker List</h1>
+</header>
+
+<section style="max-width: 100%; margin: 20px auto; background-color: white; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); justify-items: center">
+    <div class="add-locker-container">
+        <h2>Lockers</h2>
+        <!-- Add "+" icon as a link to the add locker page -->
+        <a href="/locker/add" class="add-locker-icon">
+            <i class="fa-solid fa-square-plus"></i>
+        </a>
+    </div>
+
+    <!-- Table Container with 5 tables per row -->
+    <div class="table-container">
+        <div th:each="locker : ${lockers}" class="locker-table">
+            <div th:replace="~{fragments/lockerTable :: table}"></div>
+        </div>
+    </div>
+</section>
+
+<footer style="text-align: center; padding: 10px; background-color: #333; color: white; margin-top: 20px;">
+    <p>&copy; 2025 My Basic Page</p>
+</footer>
+
+</body>
+</html>

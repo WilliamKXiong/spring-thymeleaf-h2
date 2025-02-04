@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Basic HTML Page</title>
+	<style>
+		/* Simple styles for the navigation bar */
+		nav {
+			background-color: #333;
+			padding: 10px;
+		}
+		nav a {
+			color: white;
+			text-decoration: none;
+			padding: 10px 15px;
+			margin: 0 10px;
+			display: inline-block;
+		}
+		nav a:hover {
+			background-color: #4CAF50;
+			border-radius: 5px;
+		}
+	</style>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 20px;">
+
+<header style="text-align: center; padding: 20px; background-color: #4CAF50; color: white;">
+	<h1>Welcome to My Basic Page</h1>
+</header>
+
+<!-- Navigation Bar -->
+<nav>
+	<a href="/locker">Locker</a>
+</nav>
+
+<section style="max-width: 800px; margin: 20px auto; background-color: white; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+	<h2>About This Page</h2>
+	<p th:text="${'Message: ' + message}"></p>
+	<p>This is a simple HTML page with a bit of inline styling to make it look nicer. It's perfect for a basic layout and beginner practice.</p>
+</section>
+
+<footer style="text-align: center; padding: 10px; background-color: #333; color: white; margin-top: 20px;">
+	<p>&copy; 2025 My Basic Page</p>
+</footer>
+
+</body>
+</html>

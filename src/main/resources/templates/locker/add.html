@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Locker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .form-container {
+            width: 50%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        input {
+            width: 95%;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .back-link {
+            margin-top: 20px;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            color: #4CAF50;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .locked-icon {
+            color: #4CAF50;
+        }
+        .unlocked-icon {
+            color: #f85151;
+        }
+    </style>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 20px;">
+
+<header style="text-align: center; padding: 20px; background-color: #4CAF50; color: white;">
+    <h1>Add New Locker</h1>
+</header>
+
+<section class="form-container">
+    <div style="justify-self: center; display: flex; font-size: larger; align-items: center">
+        <h2>Enter Locker Details</h2>
+        <i class="fa-solid fa-unlock unlocked-icon" style="margin-left: 5px; display: none"></i>
+        <i class="fa-solid fa-lock locked-icon" style="margin-left: 5px; display: inline"></i>
+    </div>
+
+    <form action="/locker/add" method="post" th:action="@{/locker/add}" th:object="${locker}">
+
+        <div class="form-group">
+            <label for="name">Locker Name</label>
+            <input type="text" id="name" name="name" th:value="*{name}" maxlength="255" required />
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" id="description" name="description" th:value="*{description}" maxlength="255" required />
+        </div>
+
+        <div class="form-group">
+            <div style="display: flex">
+                <label>Locked</label>
+                <i class="fa-solid fa-unlock unlocked-icon" style="margin-left: 5px; display: none"></i>
+                <i class="fa-solid fa-lock locked-icon" style="margin-left: 5px; display: inline"></i>
+            </div>
+            <div style="display: flex; margin: 5px">
+                <label for="lockedYes" style="font-weight: normal">Yes</label>
+                <input type="radio" id="lockedYes" name="locked" value="true" th:checked="true" style="width: 25px" />
+                <label for="lockedNo" style="font-weight: normal">No</label>
+                <input type="radio" id="lockedNo" name="locked" value="false" th:checked="*{locked == false}" style="width: 25px" />
+            </div>
+        </div>
+
+        <div class="form-group" style="width: min-content">
+            <label for="usage">Usage</label>
+            <input type="number" id="usage" name="usage" th:value="0" min="0" max="1000" required />
+        </div>
+
+        <div class="form-group" style="width: min-content">
+            <label for="capacity">Capacity</label>
+            <input type="number" id="capacity" name="capacity" th:value="1" min="1" max="1000" required />
+        </div>
+
+        <button style="display: block; margin: 20px auto; padding: 10px 20px; background-color: #4CAF50;
+            color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Add Locker
+        </button>
+    </form>
+
+    <a href="/locker" class="back-link">Back to Locker List</a>
+</section>
+
+<footer style="text-align: center; padding: 10px; background-color: #333; color: white; margin-top: 20px;">
+    <p>&copy; 2025 My Basic Page</p>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const lockedIcons = document.querySelectorAll('.locked-icon');  // Select all .locked-icon elements
+        const unlockedIcons = document.querySelectorAll('.unlocked-icon');  // Select all .unlocked-icon elements
+
+        if (lockedIcons.length > 0 && unlockedIcons.length > 0) {
+            // Show or hide icons based on radio button change
+            document.getElementById('lockedYes').addEventListener('change', function () {
+                // Show all locked icons and hide all unlocked icons
+                lockedIcons.forEach(icon => icon.style.display = 'inline');
+                unlockedIcons.forEach(icon => icon.style.display = 'none');
+            });
+
+            document.getElementById('lockedNo').addEventListener('change', function () {
+                // Hide all locked icons and show all unlocked icons
+                lockedIcons.forEach(icon => icon.style.display = 'none');
+                unlockedIcons.forEach(icon => icon.style.display = 'inline');
+            });
+        }
+    });
+</script>
+</body>
+</html>

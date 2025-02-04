@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locker Table Fragment</title>
+    <style>
+
+    </style>
+</head>
+<body>
+<!-- Define the fragment -->
+<div th:fragment="table">
+
+    <!-- Locker is null -->
+    <div th:if="${locker == null}">
+        <table style="width: 60%; margin: 20px auto; border-collapse: collapse; background-color: white;">
+            <thead>
+            <tr style="background-color: #4CAF50; color: white; text-align: left;">
+                <th style="padding: 10px; text-align: center" colspan="2"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">Description</td>
+                <td style="padding: 10px; border: 1px solid #ddd; min-width: 100px"></td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">Capacity</td>
+                <td style="padding: 10px; border: 1px solid #ddd; min-width: 100px"></td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">Locked</td>
+                <td style="padding: 10px; border: 1px solid #ddd; min-width: 100px"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Locker is not null -->
+    <div th:unless="${locker == null}">
+        <table style="margin: 20px auto; border-collapse: collapse; background-color: white;">
+            <thead>
+                <tr style="background-color: #4CAF50; color: white; text-align: left;">
+                    <th style="padding: 10px; text-align: center;" colspan="2">
+                        <a th:href="@{/locker/{id}(id=${locker.id})}" th:if="${onListPage}" style="color: white; text-decoration: none;">
+                            <span th:text="${locker.name}"></span>
+                            <i class="fa-solid fa-up-right-from-square" style="margin-left: 5px;"></i>
+                        </a>
+                        <div th:unless="${onListPage}">
+                            <span th:text="${locker.name}"></span>
+                            <i class="fa-solid fa-up-right-from-square" style="margin-left: 5px;"></i>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">Description</td>
+                <td style="padding: 10px; border: 1px solid #ddd;" th:text="${locker.description}"></td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">Capacity</td>
+                <td style="padding: 10px; border: 1px solid #ddd;" th:text="${locker.usage + '/' + locker.capacity}"></td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">Locked</td>
+                <td style="padding: 10px; border: 1px solid #ddd;" th:text="${locker.locked}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
