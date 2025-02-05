@@ -11,7 +11,7 @@
 
     <groupId>com.thymeleaf</groupId>
     <artifactId>thymeleaf</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>thymeleaf</name>
     <description>thymeleaf</description>
@@ -58,9 +58,15 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.17.0</version>
         </dependency>
+<!--        2025-02-24 - No longer using -->
+<!--        <dependency>-->
+<!--            <groupId>com.h2database</groupId>-->
+<!--            <artifactId>h2</artifactId>-->
+<!--        </dependency>-->
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -90,7 +96,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <source>${java.version}</source>
-<!--                    <compilerVersion>${java.version}</compilerVersion>-->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -122,6 +127,7 @@
                 <configuration>
                     <archive>
                         <manifest>
+<!--                            Need this so Dockerfile can find main class-->
                             <mainClass>com.thymeleaf.ThymeleafApplication</mainClass>
                         </manifest>
                     </archive>

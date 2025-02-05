@@ -1,0 +1,43 @@
+/* Simple styles for the navigation bar */
+nav {
+    background-color: #333;
+    padding: 10px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    margin: 0 0;
+    display: inline-block;
+}
+
+nav a:hover {
+    background-color: #4CAF50;
+    border-radius: 5px;
+}
+
+.back-link {
+    margin-top: 20px;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: #4CAF50;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.locked-icon {
+    color: #4CAF50;
+}
+
+.unlocked-icon {
+    color: #f85151;
+}
+
+.back-icon {
+    margin-right: 10px;
+    color: #4CAF50;
+}

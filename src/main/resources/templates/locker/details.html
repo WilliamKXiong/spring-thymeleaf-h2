@@ -4,33 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basic HTML Page</title>
-    <style>
-        .back-link {
-            margin-top: 20px;
-            display: block;
-            text-align: center;
-            text-decoration: none;
-            color: #4CAF50;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/locker/details.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 20px;">
+
 <header style="text-align: center; padding: 20px; background-color: #4CAF50; color: white;">
-    <h1>Welcome to My Basic Page</h1>
+    <h1>Locker Details</h1>
 </header>
 
+<div th:replace="~{fragments/navBar :: navBar}"></div>
+
 <section style="max-width: 800px; margin: 20px auto; background-color: white; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); justify-items: center">
-    <h2>Locker</h2>
-    <div th:replace="~{fragments/lockerTable :: table}"></div>
+    <div style="position: relative; text-align: center; display: flex; justify-content: center; align-items: center; margin-top: 10px; margin-bottom: 50px;
+    width: 55%">
+        <i class="fa-solid fa-circle-arrow-left back-icon"
+           style="position: absolute; left: 0; font-size: xx-large; cursor: pointer;"></i>
+        <h2 style="margin: 0;">Enter Locker Details</h2>
+        <i class="fa-solid fa-unlock unlocked-icon" style="margin-left: 5px; display: none;"></i>
+        <i class="fa-solid fa-lock locked-icon" style="margin-left: 5px; display: inline;"></i>
+    </div>
+
+    <div th:replace="~{fragments/lockerTable :: table(edit=true)}"></div>
     <a href="/locker" class="back-link">Back to Locker List</a>
 </section>
 
 <footer style="text-align: center; padding: 10px; background-color: #333; color: white; margin-top: 20px;">
     <p>&copy; 2025 My Basic Page</p>
 </footer>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelector(".back-icon").addEventListener("click", function () {
+            window.location.href = "/locker"; // Change URL as needed
+        });
+    });
+</script>
 </body>
 </html>

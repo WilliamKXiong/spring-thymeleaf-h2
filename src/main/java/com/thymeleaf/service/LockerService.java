@@ -32,6 +32,14 @@ public class LockerService {
         return saveOrUpdate(new Locker(), lockerDto);
     }
 
+    public void delete(LockerDto lockerDto) {
+        lockerRepo.deleteById(lockerDto.getId());
+    }
+
+    public void delete(int id) {
+        lockerRepo.deleteById(id);
+    }
+
     private LockerDto saveOrUpdate(Locker locker, LockerDto lockerDto) {
         lockerMapper.update(locker, lockerDto);
         Locker savedOrUpdatedLocker = lockerRepo.save(locker);

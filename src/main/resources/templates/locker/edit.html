@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Locker</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/locker/add.css}">
+    <link rel="stylesheet" th:href="@{/css/locker/edit.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 20px;">
+
+<header style="text-align: center; padding: 20px; background-color: #4CAF50; color: white;">
+    <h1>Edit Locker</h1>
+</header>
+
+<div th:replace="~{fragments/navBar :: navBar}"></div>
+
+<section class="form-container">
+    <div style="position: relative; text-align: center; display: flex; justify-content: center; align-items: center; margin-top: 10px; margin-bottom: 25px">
+        <i class="fa-solid fa-circle-arrow-left back-icon"
+           style="position: absolute; left: 0; font-size: xx-large; cursor: pointer;"></i>
+        <h2 style="margin: 0;">Edit Locker Details</h2>
+        <i class="fa-solid fa-unlock unlocked-icon" style="margin-left: 5px; display: none" th:if="${locker.locked == true}"></i>
+        <i class="fa-solid fa-lock locked-icon" style="margin-left: 5px; display: inline" th:if="${locker.locked == true}"></i>
+        <i class="fa-solid fa-unlock unlocked-icon" style="margin-left: 5px; display: inline" th:if="${locker.locked == false}"></i>
+        <i class="fa-solid fa-lock locked-icon" style="margin-left: 5px; display: none" th:if="${locker.locked == false}"></i>
+    </div>
+
+    <!-- Edit Locker Form -->
+    <form th:action="@{/locker/{id}/edit(id=${locker.id})}" method="post" th:object="${locker}">
+
+        <div class="form-group">
+            <label for="name">Locker Name</label>
+            <input type="text" id="name" name="name" th:field="*{name}" maxlength="255" required />
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" id="description" name="description" th:field="*{description}" maxlength="255" required />
+        </div>
+
+        <div class="form-group">
+            <div style="display: flex">
+                <label>Locked</label>
+                <i class="fa-solid fa-unlock unlocked-icon" style="margin-left: 5px; display: none" th:if="${locker.locked == true}"></i>
+                <i class="fa-solid fa-lock locked-icon" style="margin-left: 5px; display: inline" th:if="${locker.locked == true}"></i>
+                <i class="fa-solid fa-unlock unlocked-icon" style="margin-left: 5px; display: inline" th:if="${locker.locked == false}"></i>
+                <i class="fa-solid fa-lock locked-icon" style="margin-left: 5px; display: none" th:if="${locker.locked == false}"></i>
+            </div>
+            <div style="display: flex; margin: 5px">
+                <label for="lockedYes" style="font-weight: normal">Yes</label>
+                <input type="radio" id="lockedYes" name="locked" value="true" th:checked="*{locked}" style="width: 25px" />
+                <label for="lockedNo" style="font-weight: normal">No</label>
+                <input type="radio" id="lockedNo" name="locked" value="false" th:checked="*{locked == false}" style="width: 25px" />
+            </div>
+        </div>
+
+        <div class="form-group" style="width: min-content">
+            <label for="usage">Usage</label>
+            <input type="number" id="usage" name="usage" th:field="*{usage}" min="0" max="1000" required />
+        </div>
+
+        <div class="form-group" style="width: min-content">
+            <label for="capacity">Capacity</label>
+            <input type="number" id="capacity" name="capacity" th:field="*{capacity}" min="1" max="1000" required />
+        </div>
+
+        <button type="submit" style="display: block; margin: 20px auto; padding: 10px 20px; background-color: #4CAF50;
+            color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Save Changes
+        </button>
+    </form>
+
+    <div style="position: relative;">
+        <form th:action="@{/locker/{id}/delete(id=${locker.id})}" method="post" onsubmit="return confirm('Are you sure you want to delete this locker?');">
+<!--        The form submits as POST, but Spring interprets _method="DELETE" as a DELETE request. -->
+            <input type="hidden" name="_method" value="DELETE"/>
+
+            <button type="submit" class="delete-button"
+                    style="position: absolute; right: 0; top: -10px; cursor: pointer; background-color: red">
+                <i class="fa-solid fa-trash"></i> Delete
+            </button>
+        </form>
+    </div>
+
+    <a th:href="@{/locker}" class="back-link">Back to Locker List</a>
+</section>
+
+<footer style="text-align: center; padding: 10px; background-color: #333; color: white; margin-top: 20px;">
+    <p>&copy; 2025 My Basic Page</p>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const lockedIcons = document.querySelectorAll('.locked-icon');
+        const unlockedIcons = document.querySelectorAll('.unlocked-icon');
+
+        if (lockedIcons.length > 0 && unlockedIcons.length > 0) {
+            document.getElementById('lockedYes').addEventListener('change', function () {
+                lockedIcons.forEach(icon => icon.style.display = 'inline');
+                unlockedIcons.forEach(icon => icon.style.display = 'none');
+            });
+
+            document.getElementById('lockedNo').addEventListener('change', function () {
+                lockedIcons.forEach(icon => icon.style.display = 'none');
+                unlockedIcons.forEach(icon => icon.style.display = 'inline');
+            });
+        }
+    });
+    document.querySelector(".back-icon").addEventListener("click", function () {
+        window.location.href = "/locker"; // Change URL as needed
+    });
+</script>
+
+</body>
+</html>

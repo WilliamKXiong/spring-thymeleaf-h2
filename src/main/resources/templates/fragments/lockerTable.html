@@ -4,13 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Locker Table Fragment</title>
-    <style>
-
-    </style>
 </head>
 <body>
 <!-- Define the fragment -->
-<div th:fragment="table">
+<div th:fragment="table(edit)">
 
     <!-- Locker is null -->
     <div th:if="${locker == null}">
@@ -43,14 +40,20 @@
             <thead>
                 <tr style="background-color: #4CAF50; color: white; text-align: left;">
                     <th style="padding: 10px; text-align: center;" colspan="2">
-                        <a th:href="@{/locker/{id}(id=${locker.id})}" th:if="${onListPage}" style="color: white; text-decoration: none;">
-                            <span th:text="${locker.name}"></span>
-                            <i class="fa-solid fa-up-right-from-square" style="margin-left: 5px;"></i>
-                        </a>
-                        <div th:unless="${onListPage}">
-                            <span th:text="${locker.name}"></span>
-                            <i class="fa-solid fa-up-right-from-square" style="margin-left: 5px;"></i>
-                        </div>
+<!--                        This would either toggle goto Locker Details page or goto Locker Edit page-->
+<!--                        <a th:href="@{/locker/{id}(id=${locker.id})}" th:if="${onListPage}" style="color: white; text-decoration: none;">-->
+<!--                            <span th:text="${locker.name}"></span>-->
+<!--                            <i class="fa-solid fa-up-right-from-square" style="margin-left: 5px;"></i>-->
+<!--                        </a>-->
+<!--                        <a th:unless="${onListPage}" th:href="@{/locker/{id}/edit(id=${locker.id})}" style="color: white; text-decoration: none;">-->
+<!--                            <span th:text="${locker.name}"></span>-->
+<!--                            <i class="fa-solid fa-pen-to-square" style="margin-left: 5px;"></i>-->
+<!--                        </a>-->
+<!--                        This will make it so it only shows goto Locker Edit page-->
+                            <a th:href="@{/locker/{id}/edit(id=${locker.id})}" style="color: white; text-decoration: none;">
+                                <span th:text="${locker.name}"></span>
+                                <i class="fa-solid fa-pen-to-square" style="margin-left: 5px;"></i>
+                            </a>
                     </th>
                 </tr>
             </thead>
@@ -65,11 +68,22 @@
             </tr>
             <tr>
                 <td style="padding: 10px; border: 1px solid #ddd;">Locked</td>
-                <td style="padding: 10px; border: 1px solid #ddd;" th:text="${locker.locked}"></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">
+                    <div>
+                        <span th:text="${locker.locked}"></span>
+                        <i class="fa-solid fa-unlock unlocked-icon" style="margin-left: 5px; display: inline" th:if="${locker.locked == false}"></i>
+                        <i class="fa-solid fa-lock locked-icon" style="margin-left: 5px; display: inline" th:if="${locker.locked == true}"></i>
+                    </div>
+                </td>
             </tr>
             </tbody>
         </table>
     </div>
 </div>
+<script>
+    function gotoEdit(lockerId) {
+        window.location.href = "/locker/" + lockerId + "/edit";
+    }
+</script>
 </body>
 </html>

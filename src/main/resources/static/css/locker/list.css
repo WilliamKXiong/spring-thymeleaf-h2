@@ -1,0 +1,25 @@
+/* CSS to display 5 tables per row */
+.table-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5 columns */
+    gap: 20px; /* Space between tables */
+    justify-items: center; /* Center tables in the grid */
+}
+
+.locker-table {
+    width: 100%; /* Full width of the cell */
+}
+
+.add-locker-icon {
+    font-size: 30px;
+    color: #4CAF50;
+    cursor: pointer;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.add-locker-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
