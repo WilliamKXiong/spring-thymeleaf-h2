@@ -1,0 +1,237 @@
+<html>
+<head>
+    <title>Chat WebSocket</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js" integrity="sha512-iKDtgDyTHjAitUDdLljGhenhPwrbBfqTKWO1mkhSFH3A7blITC9MhYon6SjnMhp4o0rADGw9yAC6EW4t5a4K3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <script>
+        class ChatResponse {
+            constructor(uid, type, from, to, text, time) {
+                this.uid = uid;
+                this.type = type;
+                this.from = from;
+                this.to = to;
+                this.text = text;
+                this.time = time;
+            }
+        }
+
+        function createChatResponse(response) {
+            return new ChatResponse(response.body.uid, response.body.type, response.body.from, response.body.to, response.body.text, response.body.time);
+        }
+
+        class ChatRequest {
+            constructor(type, from, to, text) {
+                this.type = type;
+                this.from = from;
+                this.to = to;
+                this.text = text;
+            }
+        }
+
+        function createChatRequest(requestJson) {
+            return new ChatRequest(requestJson.type, requestJson.from, requestJson.to, requestJson.text);
+        }
+
+        function createMessage(chatResponse) {
+            return chatResponse.from + ": " + chatResponse.text + " (" + chatResponse.time + ")";
+        }
+
+        let name = '';
+        let connected = false;
+        let requestUid = '';
+
+        function setConnected(connected) {
+            document.getElementById('connect').disabled = connected;
+            document.getElementById('connect').style.display
+                = connected ? 'none' : 'block';
+            document.getElementById('disconnect').disabled = !connected;
+            document.getElementById('disconnect').style.display
+                = !connected ? 'none' : 'block';
+            document.getElementById('conversationDiv').style.visibility
+                = connected ? 'visible' : 'hidden';
+            document.getElementById('messages').innerHTML = '';
+            document.getElementById('rename').style.display
+                = connected ? 'block' : 'none';
+
+            this.connected = connected;
+
+            if (connected) {
+                resetErrors();
+            }
+        }
+
+        var stompClient = null;
+
+        function connect() {
+            var chatSocket = new SockJS('/chat');
+            stompClient = Stomp.over(chatSocket);
+
+            stompClient.connect({}, function(frame) {
+                stompClient.subscribe('/topic/messages', function(messageOutput) {
+                    let chatResponse = createChatResponse(JSON.parse(messageOutput.body));
+                    handleMessageResponse(chatResponse);
+                });
+
+                name = document.getElementById('from').value;
+                stompClientSend(createChatRequest({
+                    type: 'connect',
+                    from: name,
+                    to: 'Server',
+                    text: ''
+                }));
+            });
+        }
+
+        function disconnect() {
+            if (stompClient !== null && stompClient.connected) {
+                stompClientSend(createChatRequest({
+                    type: 'disconnect',
+                    from: name,
+                    to: 'Server',
+                    text: ''
+                }));
+                stompClient.disconnect();
+                name = '';
+            }
+            setConnected(false);
+        }
+
+        function rename() {
+            var from = document.getElementById('from').value;
+
+            stompClientSend(createChatRequest({
+                type: 'rename',
+                from: name,
+                to: from,
+                text: ''
+            }));
+            //
+            // var oldName = name;
+            // name = from;
+            //
+            // sendCustomMessageToTopic('User ' + oldName + "' renamed to '" + name + "'.");
+        }
+
+        function sendCustomMessageToTopic(customText) {
+            stompClientSend(createChatRequest({
+                type: 'message',
+                from: name,
+                to: 'to is not blank',
+                text: customText
+            }));
+        }
+
+        function sendMessageToTopic() {
+            var text = document.getElementById('text').value;
+            var chatRequest = new ChatRequest('message', name, '', text);
+            stompClientSend(chatRequest);
+        }
+
+        function stompClientSend(chatRequest) {
+            chatRequest.uid = crypto.randomUUID();
+            requestUid = chatRequest.uid;
+            stompClient.send("/app/chat", {}, JSON.stringify(chatRequest));
+        }
+
+        function resetErrors() {
+            var connectError = document.getElementById('connect-error');
+            connectError.text = '';
+            connectError.style.color = '';
+            connectError.style.display = 'none';
+        }
+
+        function handleMessageResponse(chatResponse) {
+            const type = chatResponse.type;
+            switch (type) {
+                case 'connect.error':
+                    if (chatResponse.uid == requestUid) {
+                        var connectError = document.getElementById('connect-error');
+                        connectError.innerText = chatResponse.text;
+                        connectError.style.color = 'red';
+                        connectError.style.display = 'block';
+                        setConnected(false);
+                        stompClient.disconnect();
+                    }
+
+                    break;
+                case 'connect':
+                    if (chatResponse.to == name) {
+                        setConnected(true);
+                    }
+                    addMessageOutput(createMessage(chatResponse));
+                    break;
+                case 'disconnect':
+                    addMessageOutput(createMessage(chatResponse));
+                    break;
+                case 'message':
+                    addMessageOutput(createMessage(chatResponse));
+                    break;
+                case 'rename.error':
+                    if (chatResponse.uid == requestUid) {
+                        document.getElementById('from').value = name;
+                        var connectError = document.getElementById('connect-error');
+                        connectError.innerText = chatResponse.text;
+                        connectError.style.color = 'red';
+                        connectError.style.display = 'block';
+                        setTimeout(() => {
+                            resetErrors();
+                        }, 5000);
+                    }
+                    break;
+                case 'rename':
+                    name = document.getElementById('from').value;
+                    addMessageOutput(createMessage(chatResponse));
+                    break;
+                default:
+                    console.log('Unrecognized chat response type.')
+            }
+        }
+
+        function addMessageOutput(newMessage) {
+            var messages = document.getElementById('messages');
+            var p = document.createElement('p');
+            p.style.wordWrap = 'break-word';
+            p.appendChild(document.createTextNode(newMessage));
+            messages.appendChild(p);
+        }
+
+        window.addEventListener("beforeunload", function(event) {
+            disconnect();
+        });
+    </script>
+</head>
+<body onload="disconnect()">
+
+<header style="text-align: center; padding: 20px; background-color: #4CAF50; color: white;">
+    <h1>Chat</h1>
+</header>
+
+<div th:replace="~{fragments/navBar :: navBar}"></div>
+
+<section style="max-width: 800px; margin: 20px auto; background-color: white; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); justify-items: center">
+    <div style="display: flex;">
+        <input type="text" id="from" placeholder="Choose a nickname"/>
+        <button id="rename" onclick="rename();" style="display: none">Rename</button>
+    </div>
+    <span id="connect-error"></span>
+    <br />
+    <br />
+    <div>
+        <button id="connect" onclick="connect();">Connect</button>
+        <button id="disconnect" disabled="disabled" style="display: none" onclick="disconnect();">
+            Disconnect
+        </button>
+    </div>
+    <br />
+    <div id="conversationDiv">
+        <input type="text" id="text" placeholder="Write a message..."/>
+        <button id="sendMessage" onclick="sendMessageToTopic();">Send</button>
+        <p id="messages"></p>
+    </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
