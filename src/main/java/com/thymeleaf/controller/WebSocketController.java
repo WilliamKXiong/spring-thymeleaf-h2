@@ -10,6 +10,6 @@ public class WebSocketController {
 
     @GetMapping
     public String chatSocket() {
-        return "/socket/index";
+        return "socket/index";
     }
 }
