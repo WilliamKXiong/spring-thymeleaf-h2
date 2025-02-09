@@ -13,6 +13,7 @@ public class SocketConstant {
 
     public static final class ENDPOINT {
         public static final String CHAT = "/chat";
+        public static final String KABOOM = "/kaboomSocket";
         public static final String DISCONNECT = "/disconnect";
         public static final String ERROR = "/error";
     }

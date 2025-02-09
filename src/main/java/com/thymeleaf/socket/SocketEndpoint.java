@@ -2,6 +2,7 @@ package com.thymeleaf.socket;
 
 public enum SocketEndpoint {
     CHAT(SocketConstant.ENDPOINT.CHAT, true),
+    KABOOM(SocketConstant.ENDPOINT.KABOOM, true),
     DISCONNECT(SocketConstant.ENDPOINT.DISCONNECT, false),
     ERROR(SocketConstant.ENDPOINT.ERROR, false);
 

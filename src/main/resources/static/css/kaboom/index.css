@@ -1,0 +1,11 @@
+#kaboom-container {
+    max-width: 100%;
+    min-height: 70%;
+    height: 60%;
+    margin: 20px auto;
+    background-color: white;
+    padding: 20px;
+    padding-top: 0px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    justify-items: center;
+}

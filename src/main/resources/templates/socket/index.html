@@ -1,5 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat WebSocket</title>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js" integrity="sha512-iKDtgDyTHjAitUDdLljGhenhPwrbBfqTKWO1mkhSFH3A7blITC9MhYon6SjnMhp4o0rADGw9yAC6EW4t5a4K3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -106,11 +109,6 @@
                 to: from,
                 text: ''
             }));
-            //
-            // var oldName = name;
-            // name = from;
-            //
-            // sendCustomMessageToTopic('User ' + oldName + "' renamed to '" + name + "'.");
         }
 
         function sendCustomMessageToTopic(customText) {
@@ -201,7 +199,8 @@
         });
     </script>
 </head>
-<body onload="disconnect()">
+
+<body onload="disconnect()" style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 20px;">
 
 <header style="text-align: center; padding: 20px; background-color: #4CAF50; color: white;">
     <h1>Chat</h1>

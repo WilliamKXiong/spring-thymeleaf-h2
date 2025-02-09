@@ -1,0 +1,4 @@
+- Need to track food and hearts on server so players can see others eat food
+- Need to make rendering of other players smoother
+- Need to adjust canvas to fit on screen along with scoreboard
+- Double check other players are placed relatively in same grid as current players

@@ -1,13 +1,32 @@
 /* CSS to display 5 tables per row */
+/*.table-container {*/
+/*    display: grid;*/
+/*    grid-template-columns: repeat(auto-fit, 1fr); !* 5 columns *!*/
+/*    gap: 20px; !* Space between tables *!*/
+/*    justify-items: center; !* Center tables in the grid *!*/
+/*}*/
+
+/*.locker-table {*/
+/*    width: 100%; !* Full width of the cell *!*/
+/*}*/
+
+/*.table-container {*/
+/*    display: grid;*/
+/*    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); !* Auto-adjust columns *!*/
+/*    gap: 20px; !* Space between tables *!*/
+/*    justify-items: center; !* Center tables in the grid *!*/
+/*}*/
+
 .table-container {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 columns */
-    gap: 20px; /* Space between tables */
-    justify-items: center; /* Center tables in the grid */
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px
 }
 
 .locker-table {
-    width: 100%; /* Full width of the cell */
+    max-width: 100%;
 }
 
 .add-locker-icon {

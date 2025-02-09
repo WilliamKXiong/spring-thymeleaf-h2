@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaboom Page</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/kaboom/index.css}">
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js" integrity="sha512-iKDtgDyTHjAitUDdLljGhenhPwrbBfqTKWO1mkhSFH3A7blITC9MhYon6SjnMhp4o0rADGw9yAC6EW4t5a4K3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+
+        let playerUid = '';
+        let playerNumber = 0;
+
+        window.onload = async function () {
+            try {
+                const response = await fetch("/api/kaboomSocket/nextPlayer");
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                playerNumber = await response.text();
+                console.log("Next player number:", playerNumber);
+
+                playerUid = 'player' + playerNumber;
+                console.log('Current playerUid is ', playerUid);
+            } catch (error) {
+                console.error("Error fetching next player number:", error);
+            }
+
+            connect();
+        };
+
+        var stompClient = null;
+        let playerList = [];
+
+        let player;
+        let score = 0;
+
+        function updateScoreboard() {
+            const scoreboardBody = document.getElementById("scoreboard-body");
+            scoreboardBody.innerHTML = ""; // Clear old data
+
+            if (playerList != null && playerList.length > 0) {
+                playerList.forEach(player => {
+                    let row = document.createElement("tr");
+                    row.id=player.name;
+                    row.innerHTML = `
+            <td>${player.name}</td>
+            <td>(${player.posX.split('.')[0]}, ${player.posY.split('.')[0]})</td>
+            <td>${player.score}</td>
+        `;
+                    scoreboardBody.appendChild(row);
+                });
+            }
+        }
+
+        function handleResponse(response) {
+            const type = response.type;
+            switch (type) {
+                case "connected":
+                    playerList = response.players;
+                    break;
+                default:
+                    playerList = response.players;
+            }
+            updateScoreboard();
+        }
+
+        function connect() {
+            if (playerUid == '') {
+                playerUid = 'player' + playerNumber;
+            }
+
+            var chatSocket = new SockJS('/kaboomSocket');
+            stompClient = Stomp.over(chatSocket);
+
+            // Disabled debug console logging
+            stompClient.debug = () => {};
+
+            stompClient.connect({}, function(frame) {
+                stompClient.subscribe('/topic/messages', function(response) {
+                    // console.log("/topic/messages: ", JSON.parse(response.body).body);
+                    // playerList = JSON.parse(response.body).body.players;
+                    // console.log("playerList: ", playerList);
+                    handleResponse(JSON.parse(response.body).body);
+                });
+
+                stompClient.send("/app/kaboomSocket", {},
+                    JSON.stringify({uid: crypto.randomUUID(),
+                        type: "connect",
+                        player: {
+                            name: playerUid,
+                            posX: "0",
+                            posY: "0",
+                            score: "0"
+                        }
+                    }));
+            });
+        }
+
+        function disconnect() {
+            if (stompClient !== null && stompClient.connected) {
+                stompClient.send("/app/kaboomSocket", {},
+                    JSON.stringify({uid: crypto.randomUUID(),
+                        type: "disconnect",
+                        player: {
+                            name: playerUid,
+                            posX: "0",
+                            posY: "0",
+                            score: "0"
+                        }
+                    }));
+                stompClient.disconnect();
+                playerUid = null;
+            }
+        }
+
+        // Update the player info for the server
+        function updatePlayer() {
+            stompClient.send("/app/kaboomSocket", {},
+                JSON.stringify({uid: crypto.randomUUID(),
+                    type: "player",
+                    player: {
+                        name: playerUid,
+                        posX: player.pos.x,
+                        posY: player.pos.y,
+                        score: score
+                    }
+                }));
+
+            updateScoreboard();
+        }
+
+        window.addEventListener("beforeunload", function(event) {
+            disconnect();
+        });
+    </script>
+</head>
+<body style="font-family: Arial, sans-serif; width: 75%; height: 80%; margin: 0px;">
+
+<header style="text-align: center; padding: 20px; background-color: #4CAF50; color: white;">
+    <h1>Kaboom</h1>
+</header>
+
+<div th:replace="~{fragments/navBar :: navBar}"></div>
+
+<section id="kaboom-container">
+    <button id="reset" onclick="resetGame()">Pause</button>
+    <h2>Scoreboard</h2>
+    <table id="scoreboard" border="1">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Position (X, Y)</th>
+            <th>Score</th>
+        </tr>
+        </thead>
+        <tbody id="scoreboard-body">
+        <!-- Players will be dynamically inserted here -->
+        </tbody>
+    </table>
+</section>
+
+<script src="https://unpkg.com/kaboom/dist/kaboom.js"></script>
+<script>
+    // Select the container
+    const container = document.getElementById("kaboom-container");
+
+    // Create the Kaboom canvas
+    const k = kaboom({
+        width: container.width,  // Match the container width
+        height: container.height, // Match the container height
+        background: [200, 200, 255] // Light blue background
+    });
+
+    // Move the Kaboom canvas inside the container
+    container.appendChild(k.canvas);
+
+    // Resize Kaboom dynamically on window resize
+    window.addEventListener("resize", () => {
+        k.setCanvasSize(container.clientWidth, container.clientHeight);
+    });
+
+    const fruits = [
+        "cheery",
+        "pineapple",
+        "grape",
+        "watermelon",
+    ]
+
+    for (const fruit of fruits) {
+        loadSprite(fruit, `/kaboom/sprites/${fruit}.png`)
+    }
+
+    loadSprite("turtle", "/kaboom/sprites/turtle.png")
+    loadSprite("heart", "/kaboom/sprites/heart.png")
+    loadSound("crunch", "/kaboom/sounds/crunch.mp3")
+    loadSound("bleh", "/kaboom/sounds/bleh.mp3")
+
+    scene("start", (yAdjust) => {
+
+        // play("wooosh")
+
+        add([
+            text("Eat All Hearts to Earn Points"),
+            pos(center().add(0, -400 + yAdjust)),
+            scale(2),
+            anchor("center"),
+        ])
+
+        add([
+            text("Avoid Fruits They Will Lower Your Points"),
+            pos(center().add(0, -300 + yAdjust)),
+            scale(2),
+            anchor("center"),
+        ])
+
+        add([
+            sprite("heart"),
+            pos(center().add(0, -200 + yAdjust)),
+            scale(2),
+            anchor("center"),
+        ])
+
+        add([
+            sprite("turtle"),
+            pos(center().add(-100, -200 + yAdjust)),
+            scale(1),
+            anchor("center"),
+        ])
+
+        add([
+            text("Click to Start Game"),
+            pos(center().add(0, -100 + yAdjust)),
+            scale(2),
+            anchor("center"),
+        ])
+
+        onClick(() => go("game"))
+    })
+
+    // main game scene content
+    scene("game", () => {
+
+        const SPEED_MIN = 120
+        const SPEED_MAX = 640
+
+        // add the player game object
+        player = add([
+            sprite("turtle"),
+            pos(40, 20),
+            area({scale: 0.5}),
+            anchor("center"),
+            playerUid
+        ])
+
+        playerName = add([
+            text(playerUid),
+            pos(player.pos.x - 75, player.pos.y - 65)
+        ])
+
+        // make the layer move by mouse
+        player.onUpdate(() => {
+            player.pos = mousePos()
+            playerName.pos.x = player.pos.x - 75;
+            playerName.pos.y = player.pos.y - 65;
+        })
+
+        onUpdate(playerUid, () => {
+            positionText.text = `x: ${Math.floor(player.pos.x)}, y: ${Math.floor(player.pos.y)}`;
+            updatePlayer();
+        });
+
+        // game over if player eats a fruit
+        player.onCollide("fruit", (fruit) => {
+            play("bleh")
+            score -= 1
+            destroy(fruit)
+            scoreLabel.text = "Score: " + score
+            updatePlayer();
+        })
+
+        let playerObjects = {}; // Store player entities
+        // Loop through all players and add them to the canvas
+        for (const playerData of playerList) {
+            if (playerData.name == playerUid) {
+                continue;
+            }
+
+            let newPlayer = add([
+                sprite("turtle"),
+                pos(playerData.posX, playerData.posY),
+                area({scale: 0.5}),
+                anchor("center"),
+                { uid: playerData.name }
+            ]);
+
+            let playerNameTag = add([
+                text(playerData.name),
+                pos(newPlayer.pos.x - 75, newPlayer.pos.y - 65),
+            ]);
+
+            // Store player reference for updates
+            playerObjects[playerData.name] = { entity: newPlayer, nameTag: playerNameTag };
+
+            // Sync player movement
+            newPlayer.onUpdate(() => {
+                playerNameTag.pos.x = newPlayer.pos.x - 75;
+                playerNameTag.pos.y = newPlayer.pos.y - 65;
+            });
+        }
+
+        // Periodically update all player positions from server
+        loop(0.1, () => {
+            for (const playerData of playerList) {
+                if (playerObjects[playerData.name]) {
+                    let { entity, nameTag } = playerObjects[playerData.name];
+                    entity.pos = vec2(parseFloat(playerData.posX), parseFloat(playerData.posY));
+                    nameTag.pos = vec2(entity.pos.x - 75, entity.pos.y - 65);
+                }
+            }
+        });
+
+
+        // move the food every frame, destroy it if far outside of screen
+        onUpdate("food", (food) => {
+            food.move(-food.speed, 0)
+            if (food.pos.x < -120) {
+                destroy(food)
+            }
+        })
+
+        // No longer die from, will make a timer instead
+        onUpdate("heart", (heart) => {
+            if (heart.pos.x <= 0) {
+                // go("lose", score)
+                // play("hit")
+                // addKaboom(heart.pos)
+            }
+        })
+
+        const scoreLabel = add([
+            text("Score:" + score, 32),
+            pos(12, 12),
+        ])
+
+        const positionText = add([
+            text(`x: ${player.pos.x}, y: ${player.pos.y}`, 16),
+            pos(12, 52),
+        ]);
+
+        // onUpdate(() => {
+        //     positionText.text = `x: ${Math.floor(player.pos.x)}, y: ${Math.floor(player.pos.y)}`;
+        // });
+
+        // increment score if player eats a heart
+        player.onCollide("heart", (heart) => {
+            addKaboom(player.pos)
+            score += 1
+            destroy(heart)
+            scoreLabel.text = "Score: " + score
+            play("crunch")
+            updatePlayer()
+        })
+
+        // do this every 0.3 seconds
+        loop(0.3, () => {
+
+            // spawn from right side of the screen
+            const x = width() + 24
+            // spawn from a random y position
+            const y = rand(0, height())
+            // get a random speed
+            const speed = rand(SPEED_MIN, SPEED_MAX)
+            // 50% percent chance is heart
+            const isHeart = chance(0.5)
+            const spriteName = isHeart ? "heart" : choose(fruits)
+
+            add([
+                sprite(spriteName),
+                pos(x, y),
+                area({scale: 0.5}),
+                anchor("center"),
+                "food",
+                isHeart ? "heart" : "fruit",
+                {speed: speed},
+            ])
+
+        })
+
+    })
+
+    // game over scene
+    scene("lose", (score) => {
+
+        add([
+            sprite("turtle"),
+            pos(width() / 2, height() / 2 - 108),
+            scale(2),
+            anchor("center"),
+        ])
+
+        // display score
+        add([
+            text("Score: " + score),
+            pos(width() / 2, height() / 2 + 108),
+            scale(3),
+            anchor("center"),
+        ])
+
+        // go back to game with space is pressed
+        onKeyPress("space", () => go("start", 200))
+        onClick(() => go("start", 200))
+
+    })
+
+    // start with the "game" scene
+    go("start", 0)
+
+    function resetGame() {
+        go("start", 200);
+    }
+</script>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
